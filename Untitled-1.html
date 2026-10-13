@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KoduPesa — каталог товаров</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #faf7f1;
+      color: #40382f;
+    }
+
+    header {
+      background: #e8dfd0;
+      padding: 28px 18px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      color: #655342;
+    }
+
+    header p {
+      margin: 0;
+      color: #756858;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 50px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    input, button {
+      font: inherit;
+    }
+
+    #search {
+      flex: 1;
+      min-width: 180px;
+      padding: 12px 14px;
+      border: 1px solid #d7cbbb;
+      border-radius: 10px;
+      background: white;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 16px;
+      cursor: pointer;
+      background: #75634e;
+      color: white;
+    }
+
+    button:hover {
+      opacity: 0.88;
+    }
+
+    .secondary {
+      background: #e7dfd4;
+      color: #40382f;
+    }
+
+    .danger {
+      background: #a94d43;
+    }
+
+    #productForm {
+      background: white;
+      padding: 20px;
+      border: 1px solid #e7ded2;
+      border-radius: 14px;
+      margin-bottom: 24px;
+    }
+
+    #productForm h2 {
+      margin-top: 0;
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: bold;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d7cbbb;
+      border-radius: 9px;
+      background: white;
+    }
+
+    .formButtons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .catalog {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 18px;
+    }
+
+    .product {
+      background: white;
+      border: 1px solid #e8dfd3;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .product img {
+      display: block;
+      width: 100%;
+      height: 210px;
+      object-fit: cover;
+      background: #eee6da;
+    }
+
+    .noPhoto {
+      height: 210px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #eee6da;
+      color: #897b69;
+      font-size: 15px;
+    }
+
+    .productInfo {
+      padding: 14px;
+    }
+
+    .productInfo h3 {
+      margin: 0 0 10px;
+      overflow-wrap: anywhere;
+    }
+
+    .price {
+      font-size: 20px;
+      font-weight: bold;
+      color: #75634e;
+      margin-bottom: 14px;
+    }
+
+    .productButtons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .productButtons button {
+      flex: 1;
+      padding: 9px 8px;
+      font-size: 14px;
+    }
+
+    #emptyMessage {
+      text-align: center;
+      color: #897b69;
+      padding: 35px 10px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .note {
+      font-size: 13px;
+      color: #897b69;
+      margin-top: 18px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 27px;
+      }
+
+      .toolbar button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>KoduPesa</h1>
+    <p>Каталог handmade товаров</p>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Найти товар...">
+      <button id="addButton" type="button">＋ Добавить товар</button>
+    </div>
+
+    <form id="productForm" class="hidden">
+      <h2 id="formTitle">Новый товар</h2>
+
+      <div class="field">
+        <label for="photo">Фотография товара</label>
+        <input id="photo" type="file" accept="image/*">
+      </div>
+
+      <div class="field">
+        <label for="name">Название товара *</label>
+        <input id="name" type="text" placeholder="Например, свеча Vanilla" required>
+      </div>
+
+      <div class="field">
+        <label for="price">Цена (€) *</label>
+        <input id="price" type="number" min="0" step="0.01" placeholder="Например, 8.50" required>
+      </div>
+
+      <div class="formButtons">
+        <button type="submit">Сохранить товар</button>
+        <button id="cancelButton" class="secondary" type="button">Отмена</button>
+      </div>
+    </form>
+
+    <section id="catalog" class="catalog"></section>
+
+    <p id="emptyMessage">Пока здесь пусто. Добавим первый товар?</p>
+
+    <p class="note">
+      Товары сохраняются в этом браузере на этом устройстве.
+      Чтобы не потерять данные, не очищай данные сайта в браузере.
+    </p>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "kodupesa_products_v1";
+
+    const form = document.getElementById("productForm");
+    const addButton = document.getElementById("addButton");
+    const cancelButton = document.getElementById("cancelButton");
+    const catalog = document.getElementById("catalog");
+    const emptyMessage = document.getElementById("emptyMessage");
+    const search = document.getElementById("search");
+    const photoInput = document.getElementById("photo");
+    const nameInput = document.getElementById("name");
+    const priceInput = document.getElementById("price");
+    const formTitle = document.getElementById("formTitle");
+
+    let products = [];
+    let editingId = null;
+    let currentPhoto = "";
+
+    try {
+      products = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      if (!Array.isArray(products)) products = [];
+    } catch (error) {
+      products = [];
+    }
+
+    function saveProducts() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+        return true;
+      } catch (error) {
+        alert("Не удалось сохранить товар. Попробуй фотографию меньшего размера.");
+        return false;
+      }
+    }
+
+    function formatPrice(price) {
+      return Number(price).toLocaleString("et-EE", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) + " €";
+    }
+
+    function renderProducts() {
+      const query = search.value.trim().toLowerCase();
+
+      const filtered = products.filter(product =>
+        product.name.toLowerCase().includes(query)
+      );
+
+      catalog.replaceChildren();
+      emptyMessage.classList.toggle("hidden", filtered.length > 0);
+
+      if (products.length > 0 && filtered.length === 0) {
+        emptyMessage.textContent = "Ничего не найдено.";
+      } else if (products.length === 0) {
+        emptyMessage.textContent = "Пока здесь пусто. Добавим первый товар?";
+      }
+
+      filtered.forEach(product => {
+        const card = document.createElement("article");
+        card.className = "product";
+
+        if (product.photo) {
+          const image = document.createElement("img");
+          image.src = product.photo;
+          image.alt = product.name;
+          card.appendChild(image);
+        } else {
+          const placeholder = document.createElement("div");
+          placeholder.className = "noPhoto";
+          placeholder.textContent = "Фото не добавлено";
+          card.appendChild(placeholder);
+        }
+
+        const info = document.createElement("div");
+        info.className = "productInfo";
+
+        const title = document.createElement("h3");
+        title.textContent = product.name;
+
+        const price = document.createElement("div");
+        price.className = "price";
+        price.textContent = formatPrice(product.price);
+
+        const buttons = document.createElement("div");
+        buttons.className = "productButtons";
+
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.className = "secondary";
+        editButton.textContent = "Изменить";
+        editButton.addEventListener("click", () => editProduct(product.id));
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "danger";
+        deleteButton.textContent = "Удалить";
+        deleteButton.addEventListener("click", () => deleteProduct(product.id));
+
+        buttons.append(editButton, deleteButton);
+        info.append(title, price, buttons);
+        card.appendChild(info);
+        catalog.appendChild(card);
+      });
+    }
+
+    function openForm() {
+      form.classList.remove("hidden");
+      nameInput.focus();
+    }
+
+    function resetForm() {
+      form.reset();
+      editingId = null;
+      currentPhoto = "";
+      formTitle.textContent = "Новый товар";
+      photoInput.required = false;
+      form.classList.add("hidden");
+    }
+
+    addButton.addEventListener("click", () => {
+      resetForm();
+      openForm();
+    });
+
+    cancelButton.addEventListener("click", resetForm);
+    search.addEventListener("input", renderProducts);
+
+    function compressImage(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onerror = () => reject(new Error("Не удалось прочитать фото"));
+
+        reader.onload = () => {
+          const image = new Image();
+
+          image.onerror = () => reject(new Error("Не удалось открыть фото"));
+
+          image.onload = () => {
+            const maxSide = 900;
+            const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+            const canvas = document.createElement("canvas");
+
+            canvas.width = Math.round(image.width * scale);
+            canvas.height = Math.round(image.height * scale);
+
+            const context = canvas.getContext("2d");
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+            resolve(canvas.toDataURL("image/jpeg", 0.75));
+          };
+
+          image.src = reader.result;
+        };
+
+        reader.readAsDataURL(file);
+      });
+    }
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const name = nameInput.value.trim();
+      const price = Number(priceInput.value);
+
+      if (!name || priceInput.value === "" || !Number.isFinite(price) || price < 0) {
+        alert("Проверь название и цену товара.");
+        return;
+      }
+
+      const submitButton = form.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+
+      try {
+        let photo = currentPhoto;
+
+        if (photoInput.files && photoInput.files[0]) {
+          photo = await compressImage(photoInput.files[0]);
+        }
+
+        const previousProducts = [...products];
+
+        if (editingId !== null) {
+          products = products.map(product =>
+            product.id === editingId
+              ? { ...product, name, price, photo }
+              : product
+          );
+        } else {
+          products.unshift({
+            id: Date.now().toString() + Math.random().toString(16).slice(2),
+            name,
+            price,
+            photo
+          });
+        }
+
+        if (saveProducts()) {
+          resetForm();
+          renderProducts();
+        } else {
+          products = previousProducts;
+        }
+      } catch (error) {
+        alert("Не получилось обработать фотографию. Попробуй выбрать другое фото.");
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+
+    function editProduct(id) {
+      const product = products.find(item => item.id === id);
+      if (!product) return;
+
+      editingId = id;
+      currentPhoto = product.photo || "";
+      nameInput.value = product.name;
+      priceInput.value = product.price;
+      photoInput.value = "";
+      formTitle.textContent = "Изменить товар";
+      openForm();
+    }
+
+    function deleteProduct(id) {
+      if (!confirm("Точно удалить этот товар?")) return;
+
+      const previousProducts = [...products];
+      products = products.filter(product => product.id !== id);
+
+      if (saveProducts()) {
+        renderProducts();
+      } else {
+        products = previousProducts;
+      }
+    }
+
+    renderProducts();
+  </script>
+</body>
+</html>
