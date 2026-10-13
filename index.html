@@ -73,6 +73,11 @@
       opacity: 0.88;
     }
 
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
     .secondary {
       background: #e7dfd4;
       color: #40382f;
@@ -193,6 +198,151 @@
       line-height: 1.5;
     }
 
+    /* ---------- Новые стили ---------- */
+
+    .centerScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border: 3px solid #e7ded2;
+      border-top-color: #75634e;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .authCard {
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      border: 1px solid #e7ded2;
+      border-radius: 14px;
+      padding: 28px 24px;
+      box-shadow: 0 4px 20px rgba(64, 56, 47, 0.08);
+    }
+
+    .authCard h2 {
+      margin: 0 0 6px;
+      text-align: center;
+      color: #655342;
+      font-size: 28px;
+    }
+
+    .authSub {
+      margin: 0 0 22px;
+      text-align: center;
+      color: #897b69;
+      font-size: 14px;
+    }
+
+    .authCard form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .authCard button[type="submit"] {
+      margin-top: 8px;
+      width: 100%;
+    }
+
+    .errorBox {
+      background: #fbeeec;
+      color: #8f3428;
+      border: 1px solid #ecc8c3;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+      margin-top: 12px;
+      line-height: 1.4;
+    }
+
+    .infoBox {
+      background: #fff6e3;
+      border: 1px solid #e8d3a3;
+      color: #6b4e15;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      font-size: 14px;
+      line-height: 1.5;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .infoBox button {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+
+    .statusMessage {
+      padding: 12px 14px;
+      background: #f0e6d6;
+      border: 1px solid #d7cbbb;
+      border-radius: 10px;
+      color: #655342;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .statusMessage.error {
+      background: #fbeeec;
+      border-color: #ecc8c3;
+      color: #8f3428;
+    }
+
+    .userBar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .userEmail {
+      font-size: 13px;
+      color: #756858;
+      max-width: 260px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .userBar button {
+      padding: 8px 14px;
+      font-size: 14px;
+    }
+
+    .photoPreview {
+      margin-top: 10px;
+    }
+
+    .photoPreview img {
+      max-width: 100%;
+      max-height: 240px;
+      border-radius: 10px;
+      border: 1px solid #d7cbbb;
+      display: block;
+    }
+
+    #removePhotoButton {
+      margin-top: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+
     @media (max-width: 480px) {
       header h1 {
         font-size: 27px;
@@ -206,289 +356,866 @@
 </head>
 
 <body>
-  <header>
-    <h1>KoduPesa</h1>
-    <p>Каталог handmade товаров</p>
-  </header>
+  <!-- ЭКРАН ЗАГРУЗКИ -->
+  <div id="loadingScreen" class="centerScreen">
+    <div class="spinner" aria-label="Загрузка"></div>
+  </div>
 
-  <main>
-    <div class="toolbar">
-      <input id="search" type="search" placeholder="Найти товар...">
-      <button id="addButton" type="button">＋ Добавить товар</button>
+  <!-- ЭКРАН ВХОДА -->
+  <div id="authScreen" class="centerScreen hidden">
+    <div class="authCard">
+      <h2>KoduPesa</h2>
+      <p class="authSub">Каталог handmade товаров</p>
+      <form id="loginForm" autocomplete="on">
+        <div class="field">
+          <label for="loginEmail">Электронная почта</label>
+          <input id="loginEmail" type="email" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Пароль</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+        </div>
+        <button id="loginButton" type="submit">Войти</button>
+        <div id="loginError" class="errorBox hidden"></div>
+      </form>
     </div>
+  </div>
 
-    <form id="productForm" class="hidden">
-      <h2 id="formTitle">Новый товар</h2>
+  <!-- ЭКРАН ПРИЛОЖЕНИЯ -->
+  <div id="appScreen" class="hidden">
+    <header>
+      <h1>KoduPesa</h1>
+      <p>Каталог handmade товаров</p>
+      <div class="userBar">
+        <span id="userEmail" class="userEmail"></span>
+        <button id="logoutButton" class="secondary" type="button">Выйти</button>
+      </div>
+    </header>
 
-      <div class="field">
-        <label for="photo">Фотография товара</label>
-        <input id="photo" type="file" accept="image/*">
+    <main>
+      <div id="migrationBanner" class="infoBox hidden"></div>
+      <div id="statusMessage" class="statusMessage hidden"></div>
+
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Найти товар...">
+        <button id="addButton" type="button">＋ Добавить товар</button>
       </div>
 
-      <div class="field">
-        <label for="name">Название товара *</label>
-        <input id="name" type="text" placeholder="Например, свеча Vanilla" required>
-      </div>
+      <form id="productForm" class="hidden">
+        <h2 id="formTitle">Новый товар</h2>
 
-      <div class="field">
-        <label for="price">Цена (€) *</label>
-        <input id="price" type="number" min="0" step="0.01" placeholder="Например, 8.50" required>
-      </div>
+        <div class="field">
+          <label for="photo">Фотография товара</label>
+          <input id="photo" type="file" accept="image/jpeg,image/png,image/webp">
+          <div id="photoPreview" class="photoPreview hidden">
+            <img id="photoPreviewImg" alt="Предпросмотр">
+          </div>
+          <button id="removePhotoButton" class="secondary hidden" type="button">Убрать фото</button>
+        </div>
 
-      <div class="formButtons">
-        <button type="submit">Сохранить товар</button>
-        <button id="cancelButton" class="secondary" type="button">Отмена</button>
-      </div>
-    </form>
+        <div class="field">
+          <label for="name">Название товара *</label>
+          <input id="name" type="text" placeholder="Например, свеча Vanilla" required maxlength="200">
+        </div>
 
-    <section id="catalog" class="catalog"></section>
+        <div class="field">
+          <label for="price">Цена (€) *</label>
+          <input id="price" type="number" min="0" step="0.01" placeholder="Например, 8.50" required>
+        </div>
 
-    <p id="emptyMessage">Пока здесь пусто. Добавим первый товар?</p>
+        <div id="formError" class="errorBox hidden"></div>
 
-    <p class="note">
-      Товары сохраняются в этом браузере на этом устройстве.
-      Чтобы не потерять данные, не очищай данные сайта в браузере.
-    </p>
-  </main>
+        <div class="formButtons">
+          <button id="saveButton" type="submit">Сохранить товар</button>
+          <button id="cancelButton" class="secondary" type="button">Отмена</button>
+        </div>
+      </form>
+
+      <section id="catalog" class="catalog"></section>
+
+      <p id="emptyMessage">Пока здесь пусто. Добавим первый товар?</p>
+
+      <p class="note">
+        Товары сохраняются в облаке и доступны с любого устройства, где вы вошли в свой аккаунт.
+      </p>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    const STORAGE_KEY = "kodupesa_products_v1";
+  (function () {
+    'use strict';
 
-    const form = document.getElementById("productForm");
-    const addButton = document.getElementById("addButton");
-    const cancelButton = document.getElementById("cancelButton");
-    const catalog = document.getElementById("catalog");
-    const emptyMessage = document.getElementById("emptyMessage");
-    const search = document.getElementById("search");
-    const photoInput = document.getElementById("photo");
-    const nameInput = document.getElementById("name");
-    const priceInput = document.getElementById("price");
-    const formTitle = document.getElementById("formTitle");
+    // ============================================================
+    // КОНФИГУРАЦИЯ SUPABASE
+    // ============================================================
+    const SUPABASE_URL = 'https://umuvwfdttaonzuskorjz.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_JljUgF7rPJiXRFpMJmYhDw_UGo---6y';
 
-    let products = [];
-    let editingId = null;
-    let currentPhoto = "";
+    const BUCKET = 'product-photos';
+    const STORAGE_KEY = 'kodupesa_products_v1';
+    const MIGRATION_FLAG = 'kodupesa_migrated_v1';
+    const SIGNED_URL_TTL = 3600;   // секунд
+    const MAX_SIDE = 1600;         // px по длинной стороне
+    const JPEG_QUALITY = 0.85;
 
-    try {
-      products = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-      if (!Array.isArray(products)) products = [];
-    } catch (error) {
-      products = [];
+    if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+      document.body.innerHTML =
+        '<p style="padding:24px;font-family:sans-serif">Не удалось загрузить Supabase. Проверьте интернет и обновите страницу.</p>';
+      return;
     }
 
-    function saveProducts() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-        return true;
-      } catch (error) {
-        alert("Не удалось сохранить товар. Попробуй фотографию меньшего размера.");
-        return false;
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false
       }
+    });
+
+    // ============================================================
+    // DOM
+    // ============================================================
+    const $ = (id) => document.getElementById(id);
+
+    const loadingScreen = $('loadingScreen');
+    const authScreen = $('authScreen');
+    const appScreen = $('appScreen');
+
+    const loginForm = $('loginForm');
+    const loginEmail = $('loginEmail');
+    const loginPassword = $('loginPassword');
+    const loginButton = $('loginButton');
+    const loginError = $('loginError');
+
+    const userEmail = $('userEmail');
+    const logoutButton = $('logoutButton');
+
+    const migrationBanner = $('migrationBanner');
+    const statusMessage = $('statusMessage');
+
+    const form = $('productForm');
+    const formTitle = $('formTitle');
+    const formError = $('formError');
+    const addButton = $('addButton');
+    const cancelButton = $('cancelButton');
+    const saveButton = $('saveButton');
+    const catalog = $('catalog');
+    const emptyMessage = $('emptyMessage');
+    const search = $('search');
+    const photoInput = $('photo');
+    const photoPreview = $('photoPreview');
+    const photoPreviewImg = $('photoPreviewImg');
+    const removePhotoButton = $('removePhotoButton');
+    const nameInput = $('name');
+    const priceInput = $('price');
+
+    // ============================================================
+    // СОСТОЯНИЕ
+    // ============================================================
+    let currentUser = null;
+    let products = [];
+    const signedCache = new Map(); // path -> { url, expires }
+
+    let editingId = null;
+    let currentImagePath = null;
+    let newPhotoBlob = null;
+    let newPhotoPreviewUrl = null;
+    let removeExistingPhoto = false;
+    let formToken = 0;
+
+    let authReady = false;
+
+    // ============================================================
+    // УТИЛИТЫ
+    // ============================================================
+    function uuid() {
+      if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+        return window.crypto.randomUUID();
+      }
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
     }
 
     function formatPrice(price) {
-      return Number(price).toLocaleString("et-EE", {
+      return Number(price).toLocaleString('et-EE', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-      }) + " €";
+      }) + ' €';
     }
 
-    function renderProducts() {
-      const query = search.value.trim().toLowerCase();
+    function showFormError(message) {
+      formError.textContent = message;
+      formError.classList.remove('hidden');
+    }
 
-      const filtered = products.filter(product =>
-        product.name.toLowerCase().includes(query)
-      );
+    function clearFormError() {
+      formError.textContent = '';
+      formError.classList.add('hidden');
+    }
 
-      catalog.replaceChildren();
-      emptyMessage.classList.toggle("hidden", filtered.length > 0);
+    function showLoginError(message) {
+      loginError.textContent = message;
+      loginError.classList.remove('hidden');
+    }
 
-      if (products.length > 0 && filtered.length === 0) {
-        emptyMessage.textContent = "Ничего не найдено.";
-      } else if (products.length === 0) {
-        emptyMessage.textContent = "Пока здесь пусто. Добавим первый товар?";
+    function clearLoginError() {
+      loginError.textContent = '';
+      loginError.classList.add('hidden');
+    }
+
+    function showStatus(message, isError) {
+      statusMessage.textContent = message;
+      statusMessage.classList.toggle('error', !!isError);
+      statusMessage.classList.remove('hidden');
+    }
+
+    function hideStatus() {
+      statusMessage.classList.add('hidden');
+    }
+
+    function dataURLtoBlob(dataUrl) {
+      try {
+        const [meta, b64] = dataUrl.split(',');
+        if (!b64) return null;
+        const mimeMatch = /data:([^;]+)/.exec(meta || '');
+        const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        const bin = atob(b64);
+        const arr = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return new Blob([arr], { type: mime });
+      } catch (e) {
+        return null;
       }
-
-      filtered.forEach(product => {
-        const card = document.createElement("article");
-        card.className = "product";
-
-        if (product.photo) {
-          const image = document.createElement("img");
-          image.src = product.photo;
-          image.alt = product.name;
-          card.appendChild(image);
-        } else {
-          const placeholder = document.createElement("div");
-          placeholder.className = "noPhoto";
-          placeholder.textContent = "Фото не добавлено";
-          card.appendChild(placeholder);
-        }
-
-        const info = document.createElement("div");
-        info.className = "productInfo";
-
-        const title = document.createElement("h3");
-        title.textContent = product.name;
-
-        const price = document.createElement("div");
-        price.className = "price";
-        price.textContent = formatPrice(product.price);
-
-        const buttons = document.createElement("div");
-        buttons.className = "productButtons";
-
-        const editButton = document.createElement("button");
-        editButton.type = "button";
-        editButton.className = "secondary";
-        editButton.textContent = "Изменить";
-        editButton.addEventListener("click", () => editProduct(product.id));
-
-        const deleteButton = document.createElement("button");
-        deleteButton.type = "button";
-        deleteButton.className = "danger";
-        deleteButton.textContent = "Удалить";
-        deleteButton.addEventListener("click", () => deleteProduct(product.id));
-
-        buttons.append(editButton, deleteButton);
-        info.append(title, price, buttons);
-        card.appendChild(info);
-        catalog.appendChild(card);
-      });
     }
 
-    function openForm() {
-      form.classList.remove("hidden");
-      nameInput.focus();
-    }
-
-    function resetForm() {
-      form.reset();
-      editingId = null;
-      currentPhoto = "";
-      formTitle.textContent = "Новый товар";
-      photoInput.required = false;
-      form.classList.add("hidden");
-    }
-
-    addButton.addEventListener("click", () => {
-      resetForm();
-      openForm();
-    });
-
-    cancelButton.addEventListener("click", resetForm);
-    search.addEventListener("input", renderProducts);
-
-    function compressImage(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-
-        reader.onerror = () => reject(new Error("Не удалось прочитать фото"));
-
-        reader.onload = () => {
-          const image = new Image();
-
-          image.onerror = () => reject(new Error("Не удалось открыть фото"));
-
-          image.onload = () => {
-            const maxSide = 900;
-            const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
-            const canvas = document.createElement("canvas");
-
-            canvas.width = Math.round(image.width * scale);
-            canvas.height = Math.round(image.height * scale);
-
-            const context = canvas.getContext("2d");
-            context.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-            resolve(canvas.toDataURL("image/jpeg", 0.75));
-          };
-
-          image.src = reader.result;
-        };
-
-        reader.readAsDataURL(file);
-      });
-    }
-
-    form.addEventListener("submit", async event => {
+    // ============================================================
+    // АВТОРИЗАЦИЯ
+    // ============================================================
+    loginForm.addEventListener('submit', async (event) => {
       event.preventDefault();
+      clearLoginError();
 
-      const name = nameInput.value.trim();
-      const price = Number(priceInput.value);
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value;
 
-      if (!name || priceInput.value === "" || !Number.isFinite(price) || price < 0) {
-        alert("Проверь название и цену товара.");
+      if (!email || !password) {
+        showLoginError('Введите email и пароль.');
         return;
       }
 
-      const submitButton = form.querySelector('button[type="submit"]');
-      submitButton.disabled = true;
+      loginButton.disabled = true;
+      loginButton.textContent = 'Входим…';
 
       try {
-        let photo = currentPhoto;
-
-        if (photoInput.files && photoInput.files[0]) {
-          photo = await compressImage(photoInput.files[0]);
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) {
+          const msg = (error.message || '').toLowerCase();
+          if (msg.includes('invalid login') || msg.includes('invalid credentials') || msg.includes('invalid email or password')) {
+            showLoginError('Неверный email или пароль.');
+          } else if (msg.includes('email not confirmed')) {
+            showLoginError('Email не подтверждён. Напишите администратору.');
+          } else if (msg.includes('rate') || msg.includes('too many')) {
+            showLoginError('Слишком много попыток входа. Попробуйте позже.');
+          } else {
+            showLoginError('Ошибка входа: ' + error.message);
+          }
         }
-
-        const previousProducts = [...products];
-
-        if (editingId !== null) {
-          products = products.map(product =>
-            product.id === editingId
-              ? { ...product, name, price, photo }
-              : product
-          );
-        } else {
-          products.unshift({
-            id: Date.now().toString() + Math.random().toString(16).slice(2),
-            name,
-            price,
-            photo
-          });
-        }
-
-        if (saveProducts()) {
-          resetForm();
-          renderProducts();
-        } else {
-          products = previousProducts;
-        }
-      } catch (error) {
-        alert("Не получилось обработать фотографию. Попробуй выбрать другое фото.");
+        // При успехе экран переключит onAuthStateChange
+      } catch (err) {
+        showLoginError('Ошибка соединения. Проверьте интернет.');
       } finally {
-        submitButton.disabled = false;
+        loginButton.disabled = false;
+        loginButton.textContent = 'Войти';
       }
     });
 
-    function editProduct(id) {
-      const product = products.find(item => item.id === id);
-      if (!product) return;
+    logoutButton.addEventListener('click', async () => {
+      try {
+        await sb.auth.signOut();
+      } catch (e) {
+        // игнорируем
+      }
+    });
 
-      editingId = id;
-      currentPhoto = product.photo || "";
-      nameInput.value = product.name;
-      priceInput.value = product.price;
-      photoInput.value = "";
-      formTitle.textContent = "Изменить товар";
-      openForm();
+    let scheduledHandle = null;
+    function scheduleSession(session) {
+      if (scheduledHandle) clearTimeout(scheduledHandle);
+      scheduledHandle = setTimeout(() => {
+        scheduledHandle = null;
+        applySession(session);
+      }, 0);
     }
 
-    function deleteProduct(id) {
-      if (!confirm("Точно удалить этот товар?")) return;
+    async function applySession(session) {
+      const newUserId = session && session.user ? session.user.id : null;
+      const prevUserId = currentUser ? currentUser.id : null;
 
-      const previousProducts = [...products];
-      products = products.filter(product => product.id !== id);
+      // Дубликат того же пользователя — просто обновим ссылку и выйдем
+      if (newUserId && newUserId === prevUserId) {
+        currentUser = session.user;
+        return;
+      }
 
-      if (saveProducts()) {
-        renderProducts();
+      if (newUserId) {
+        currentUser = session.user;
+        userEmail.textContent = session.user.email || '';
+        loadingScreen.classList.add('hidden');
+        authScreen.classList.add('hidden');
+        appScreen.classList.remove('hidden');
+        await loadProducts();
+        checkMigration(); // намеренно не await
       } else {
-        products = previousProducts;
+        currentUser = null;
+        products = [];
+        signedCache.clear();
+        appScreen.classList.add('hidden');
+        authScreen.classList.remove('hidden');
+        loadingScreen.classList.add('hidden');
+        loginPassword.value = '';
+        search.value = '';
+        migrationBanner.classList.add('hidden');
+        hideStatus();
+        resetForm();
       }
     }
 
-    renderProducts();
+    sb.auth.onAuthStateChange((event, session) => {
+      if (!authReady) authReady = true;
+      if (
+        event === 'INITIAL_SESSION' ||
+        event === 'SIGNED_IN' ||
+        event === 'SIGNED_OUT'
+      ) {
+        scheduleSession(session);
+      } else if (event === 'TOKEN_REFRESHED' && session && session.user) {
+        // просто обновим объект пользователя, ничего не перезагружаем
+        currentUser = session.user;
+      }
+    });
+
+    // Резервный запуск на случай, если onAuthStateChange не сработает сразу
+    setTimeout(async () => {
+      if (authReady) return;
+      authReady = true;
+      try {
+        const { data } = await sb.auth.getSession();
+        applySession(data ? data.session : null);
+      } catch (e) {
+        loadingScreen.classList.add('hidden');
+        authScreen.classList.remove('hidden');
+      }
+    }, 2500);
+
+    // ============================================================
+    // ЗАГРУЗКА / ОТОБРАЖЕНИЕ
+    // ============================================================
+    async function loadProducts() {
+      hideStatus();
+      const { data, error } = await sb
+        .from('products')
+        .select('id,name,price,image_url,created_at')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        showStatus('Не удалось загрузить каталог: ' + error.message, true);
+        catalog.replaceChildren();
+        emptyMessage.classList.add('hidden');
+        return;
+      }
+      products = data || [];
+      await renderProducts();
+    }
+
+    async function getSignedUrl(path) {
+      if (!path) return null;
+      const cached = signedCache.get(path);
+      if (cached && cached.expires > Date.now() + 60000) return cached.url;
+
+      const { data, error } = await sb.storage
+        .from(BUCKET)
+        .createSignedUrl(path, SIGNED_URL_TTL);
+
+      if (error || !data || !data.signedUrl) {
+        console.warn('Не удалось получить ссылку на фото', path, error);
+        return null;
+      }
+      signedCache.set(path, {
+        url: data.signedUrl,
+        expires: Date.now() + SIGNED_URL_TTL * 1000
+      });
+      return data.signedUrl;
+    }
+
+    async function renderProducts() {
+      const query = search.value.trim().toLowerCase();
+      const filtered = query
+        ? products.filter((p) => (p.name || '').toLowerCase().includes(query))
+        : products;
+
+      catalog.replaceChildren();
+
+      if (products.length === 0) {
+        emptyMessage.textContent = 'Пока здесь пусто. Добавим первый товар?';
+        emptyMessage.classList.remove('hidden');
+      } else if (filtered.length === 0) {
+        emptyMessage.textContent = 'Ничего не найдено.';
+        emptyMessage.classList.remove('hidden');
+      } else {
+        emptyMessage.classList.add('hidden');
+      }
+
+      // Параллельно получаем подписанные ссылки
+      const urlMap = new Map();
+      await Promise.all(
+        filtered.map(async (p) => {
+          if (p.image_url) {
+            const url = await getSignedUrl(p.image_url);
+            if (url) urlMap.set(p.id, url);
+          }
+        })
+      );
+
+      for (const product of filtered) {
+        catalog.appendChild(buildCard(product, urlMap.get(product.id)));
+      }
+    }
+
+    function buildCard(product, imageUrl) {
+      const card = document.createElement('article');
+      card.className = 'product';
+
+      if (imageUrl) {
+        const image = document.createElement('img');
+        image.src = imageUrl;
+        image.alt = product.name || '';
+        image.loading = 'lazy';
+        card.appendChild(image);
+      } else {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'noPhoto';
+        placeholder.textContent = 'Фото не добавлено';
+        card.appendChild(placeholder);
+      }
+
+      const info = document.createElement('div');
+      info.className = 'productInfo';
+
+      const title = document.createElement('h3');
+      title.textContent = product.name || 'Без названия';
+
+      const price = document.createElement('div');
+      price.className = 'price';
+      price.textContent = formatPrice(product.price);
+
+      const buttons = document.createElement('div');
+      buttons.className = 'productButtons';
+
+      const editButton = document.createElement('button');
+      editButton.type = 'button';
+      editButton.className = 'secondary';
+      editButton.textContent = 'Изменить';
+      editButton.addEventListener('click', () => openForm(product));
+
+      const deleteButton = document.createElement('button');
+      deleteButton.type = 'button';
+      deleteButton.className = 'danger';
+      deleteButton.textContent = 'Удалить';
+      deleteButton.addEventListener('click', () => deleteProduct(product));
+
+      buttons.append(editButton, deleteButton);
+      info.append(title, price, buttons);
+      card.appendChild(info);
+      return card;
+    }
+
+    search.addEventListener('input', () => {
+      renderProducts();
+    });
+
+    // ============================================================
+    // ФОРМА
+    // ============================================================
+    function showPreview(src) {
+      photoPreviewImg.src = src;
+      photoPreview.classList.remove('hidden');
+      removePhotoButton.classList.remove('hidden');
+    }
+
+    function hidePreview() {
+      photoPreviewImg.removeAttribute('src');
+      photoPreview.classList.add('hidden');
+      removePhotoButton.classList.add('hidden');
+    }
+
+    function resetForm() {
+      formToken++;
+      form.reset();
+      editingId = null;
+      currentImagePath = null;
+      removeExistingPhoto = false;
+      if (newPhotoPreviewUrl) {
+        URL.revokeObjectURL(newPhotoPreviewUrl);
+        newPhotoPreviewUrl = null;
+      }
+      newPhotoBlob = null;
+      hidePreview();
+      clearFormError();
+      form.classList.add('hidden');
+      saveButton.disabled = false;
+      saveButton.textContent = 'Сохранить товар';
+    }
+
+    function openForm(product) {
+      resetForm();
+      const myToken = formToken;
+
+      if (product) {
+        editingId = product.id;
+        currentImagePath = product.image_url || null;
+        formTitle.textContent = 'Изменить товар';
+        nameInput.value = product.name || '';
+        priceInput.value = product.price != null ? String(product.price) : '';
+
+        if (currentImagePath) {
+          getSignedUrl(currentImagePath).then((url) => {
+            if (myToken !== formToken) return;
+            if (url) showPreview(url);
+          });
+        }
+      } else {
+        formTitle.textContent = 'Новый товар';
+      }
+
+      form.classList.remove('hidden');
+      nameInput.focus();
+    }
+
+    addButton.addEventListener('click', () => {
+      openForm(null);
+    });
+
+    cancelButton.addEventListener('click', () => {
+      resetForm();
+    });
+
+    removePhotoButton.addEventListener('click', () => {
+      newPhotoBlob = null;
+      if (newPhotoPreviewUrl) {
+        URL.revokeObjectURL(newPhotoPreviewUrl);
+        newPhotoPreviewUrl = null;
+      }
+      photoInput.value = '';
+      hidePreview();
+      if (currentImagePath) removeExistingPhoto = true;
+    });
+
+    // ============================================================
+    // СЖАТИЕ / ОБРАБОТКА ФОТО
+    // ============================================================
+    function compressImage(blobOrFile) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Не удалось прочитать файл'));
+        reader.onload = () => {
+          const image = new Image();
+          image.onerror = () => reject(new Error('Не удалось открыть изображение'));
+          image.onload = () => {
+            try {
+              let w = image.naturalWidth || image.width;
+              let h = image.naturalHeight || image.height;
+              if (!w || !h) {
+                reject(new Error('Некорректный размер изображения'));
+                return;
+              }
+              if (w > MAX_SIDE || h > MAX_SIDE) {
+                const scale = Math.min(MAX_SIDE / w, MAX_SIDE / h);
+                w = Math.max(1, Math.round(w * scale));
+                h = Math.max(1, Math.round(h * scale));
+              }
+              const canvas = document.createElement('canvas');
+              canvas.width = w;
+              canvas.height = h;
+              const ctx = canvas.getContext('2d');
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, w, h);
+              ctx.drawImage(image, 0, 0, w, h);
+              canvas.toBlob(
+                (b) => (b ? resolve(b) : reject(new Error('toBlob failed'))),
+                'image/jpeg',
+                JPEG_QUALITY
+              );
+            } catch (e) {
+              reject(e);
+            }
+          };
+          image.src = reader.result;
+        };
+        reader.readAsDataURL(blobOrFile);
+      });
+    }
+
+    photoInput.addEventListener('change', async (event) => {
+      clearFormError();
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const name = (file.name || '').toLowerCase();
+      const type = (file.type || '').toLowerCase();
+
+      const isHeic =
+        type === 'image/heic' || type === 'image/heif' ||
+        name.endsWith('.heic') || name.endsWith('.heif');
+      if (isHeic) {
+        showFormError('Этот браузер не умеет показывать фото HEIC/HEIF. Сохраните фото как JPG или PNG и выберите его снова.');
+        event.target.value = '';
+        return;
+      }
+
+      const okType = /^image\/(jpeg|png|webp)$/i.test(type);
+      const okExt = /\.(jpe?g|png|webp)$/i.test(name);
+      if (!okType && !okExt) {
+        showFormError('Поддерживаются только фото в форматах JPG, PNG и WebP.');
+        event.target.value = '';
+        return;
+      }
+
+      try {
+        const blob = await compressImage(file);
+        newPhotoBlob = blob;
+        if (newPhotoPreviewUrl) URL.revokeObjectURL(newPhotoPreviewUrl);
+        newPhotoPreviewUrl = URL.createObjectURL(blob);
+        showPreview(newPhotoPreviewUrl);
+        removeExistingPhoto = false;
+      } catch (err) {
+        showFormError('Не получилось обработать фото. Попробуйте другое (JPG или PNG).');
+        event.target.value = '';
+      }
+    });
+
+    // ============================================================
+    // STORAGE: загрузка / удаление
+    // ============================================================
+    async function uploadPhoto(blob) {
+      if (!currentUser) throw new Error('Нет активного пользователя');
+      const path = currentUser.id + '/' + uuid() + '.jpg';
+      const { error } = await sb.storage.from(BUCKET).upload(path, blob, {
+        contentType: 'image/jpeg',
+        upsert: false,
+        cacheControl: '3600'
+      });
+      if (error) throw error;
+      return path;
+    }
+
+    async function deletePhoto(path) {
+      if (!path) return;
+      try {
+        const { error } = await sb.storage.from(BUCKET).remove([path]);
+        if (error) throw error;
+        signedCache.delete(path);
+      } catch (e) {
+        console.warn('Не удалось удалить файл из Storage:', path, e);
+      }
+    }
+
+    // ============================================================
+    // СОХРАНЕНИЕ ТОВАРА
+    // ============================================================
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearFormError();
+
+      const name = nameInput.value.trim();
+      const priceRaw = priceInput.value.trim().replace(',', '.');
+      const price = Number(priceRaw);
+
+      if (!name) {
+        showFormError('Введите название товара.');
+        return;
+      }
+      if (priceInput.value === '' || !Number.isFinite(price) || price < 0) {
+        showFormError('Проверьте цену товара.');
+        return;
+      }
+
+      saveButton.disabled = true;
+      saveButton.textContent = 'Сохраняем…';
+
+      const oldPath = currentImagePath;
+      let uploadedPath = null;
+      let newPath = oldPath;
+
+      try {
+        // 1) Загружаем новое фото, если оно выбрано
+        if (newPhotoBlob) {
+          uploadedPath = await uploadPhoto(newPhotoBlob);
+          newPath = uploadedPath;
+        } else if (removeExistingPhoto) {
+          newPath = null;
+        }
+
+        // 2) Обновляем или создаём запись
+        if (editingId !== null) {
+          const { error } = await sb
+            .from('products')
+            .update({ name, price, image_url: newPath })
+            .eq('id', editingId);
+          if (error) throw error;
+        } else {
+          const { error } = await sb
+            .from('products')
+            .insert({ name, price, image_url: newPath });
+          if (error) throw error;
+        }
+
+        // 3) Чистим старое фото
+        if (oldPath && oldPath !== newPath) {
+          await deletePhoto(oldPath);
+        }
+
+        resetForm();
+        await loadProducts();
+      } catch (err) {
+        // Откат «сироты»: если файл загрузился, а запись не сохранилась
+        if (uploadedPath && uploadedPath !== oldPath) {
+          try {
+            await sb.storage.from(BUCKET).remove([uploadedPath]);
+          } catch (e) {
+            // ничего
+          }
+        }
+        showFormError('Не удалось сохранить: ' + (err && err.message ? err.message : 'неизвестная ошибка'));
+        saveButton.disabled = false;
+        saveButton.textContent = 'Сохранить товар';
+      }
+    });
+
+    // ============================================================
+    // УДАЛЕНИЕ ТОВАРА
+    // ============================================================
+    async function deleteProduct(product) {
+      if (!confirm('Точно удалить этот товар?')) return;
+      try {
+        const { error } = await sb.from('products').delete().eq('id', product.id);
+        if (error) throw error;
+        if (product.image_url) await deletePhoto(product.image_url);
+        await loadProducts();
+      } catch (err) {
+        alert('Не удалось удалить: ' + (err && err.message ? err.message : 'ошибка'));
+      }
+    }
+
+    // ============================================================
+    // МИГРАЦИЯ ИЗ localStorage
+    // ============================================================
+    async function checkMigration() {
+      if (localStorage.getItem(MIGRATION_FLAG) === 'true') return;
+
+      let localProducts = null;
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          localStorage.setItem(MIGRATION_FLAG, 'true');
+          return;
+        }
+        localProducts = JSON.parse(raw);
+      } catch (e) {
+        return; // повреждённые данные — не трогаем
+      }
+
+      if (!Array.isArray(localProducts) || localProducts.length === 0) {
+        localStorage.setItem(MIGRATION_FLAG, 'true');
+        return;
+      }
+
+      // Облако уже содержит товары?
+      if (products.length > 0) {
+        migrationBanner.classList.remove('hidden');
+        migrationBanner.textContent =
+          'В этом браузере ещё лежат ' + localProducts.length +
+          ' товаров из старой версии сайта, но в облаке уже есть товары. ' +
+          'Автоперенос отключён, чтобы не создать дубликаты. ' +
+          'Если эти товары ещё не в облаке — добавьте их вручную.';
+        return;
+      }
+
+      migrationBanner.classList.remove('hidden');
+      migrationBanner.innerHTML =
+        'В этом браузере найдено <b>' + localProducts.length +
+        '</b> товаров из старой версии. Перенести их в облако? ' +
+        'Локальные данные останутся, пока вы сами их не удалите.';
+
+      const migrateBtn = document.createElement('button');
+      migrateBtn.type = 'button';
+      migrateBtn.textContent = 'Перенести';
+
+      const skipBtn = document.createElement('button');
+      skipBtn.type = 'button';
+      skipBtn.className = 'secondary';
+      skipBtn.textContent = 'Не сейчас';
+
+      migrateBtn.addEventListener('click', () => runMigration(localProducts));
+      skipBtn.addEventListener('click', () => {
+        migrationBanner.classList.add('hidden');
+      });
+
+      migrationBanner.append(migrateBtn, skipBtn);
+    }
+
+    async function runMigration(localProducts) {
+      migrationBanner.innerHTML = 'Переносим товары… Пожалуйста, не закрывайте страницу.';
+
+      let ok = 0;
+      let fail = 0;
+
+      for (const lp of localProducts) {
+        try {
+          let imagePath = null;
+
+          // В старой версии фото хранилось как Data URL в поле photo
+          if (typeof lp.photo === 'string' && lp.photo.indexOf('data:') === 0) {
+            const blob = dataURLtoBlob(lp.photo);
+            if (blob) {
+              try {
+                const resized = await compressImage(blob);
+                imagePath = await uploadPhoto(resized);
+              } catch (e) {
+                console.warn('Не удалось перенести фото товара', lp.name, e);
+              }
+            }
+          } else if (typeof lp.image_url === 'string' && lp.image_url) {
+            imagePath = lp.image_url;
+          }
+
+          const name = String(lp.name || 'Без названия').slice(0, 200);
+          const price = Number(lp.price) || 0;
+
+          const { error } = await sb.from('products').insert({
+            name,
+            price,
+            image_url: imagePath
+          });
+          if (error) throw error;
+          ok++;
+        } catch (e) {
+          console.error('Ошибка переноса товара', lp, e);
+          fail++;
+        }
+      }
+
+      localStorage.setItem(MIGRATION_FLAG, 'true');
+      migrationBanner.innerHTML =
+        'Перенос завершён: успешно ' + ok + ', с ошибками ' + fail + '. ' +
+        'Локальные данные <b>не удалены</b> — проверьте каталог и очистите их в настройках браузера, когда убедитесь, что всё на месте.';
+
+      await loadProducts();
+    }
+  })();
   </script>
 </body>
 </html>
